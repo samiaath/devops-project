@@ -1,6 +1,5 @@
 name: CI/CD Pipeline
 
-# Déclencheur : Quand on pousse du code sur la branche main
 on:
   push:
     branches: [ "main" ]
@@ -8,27 +7,41 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # Job 1 : Intégration Continue (Tests)
+  # Job 1 : Tests
   test:
     runs-on: ubuntu-latest
     steps:
     - name: Récupérer le code
       uses: actions/checkout@v3
-
     - name: Installer Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-
-    - name: Installer les dépendances
+    - name: Installer dépendances
       run: npm install
-
     - name: Lancer les tests
       run: npm test
 
-  # Job 2 : Livraison Continue (Docker)
+  # Job 2 : Sécurité (SAST) - NOUVEAU
+  security-sast:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Récupérer le code
+      uses: actions/checkout@v3
+      
+    - name: Scan de vulnérabilités (Trivy)
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs' # Scan du système de fichiers (le code)
+        ignore-unfixed: true
+        format: 'table'
+        exit-code: '0' # On ne bloque pas le pipeline pour l'instant (0), met 1 pour bloquer si faille critique
+        severity: 'CRITICAL,HIGH'
+
+  # Job 3 : Build & Push Docker
   build-and-push:
-    needs: test # Ce job ne se lance que si les tests réussissent
+    needs: [test, security-sast] # Attend que les tests ET la sécurité soient OK
     runs-on: ubuntu-latest
     steps:
     - name: Récupérer le code
@@ -40,10 +53,9 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Construire et Pousser l'image Docker
+    - name: Construire et Pousser l'image
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
-        # Remplace 'samiaath' par ton pseudo Docker Hub si différent
         tags: ${{ secrets.DOCKER_USERNAME }}/devops-mini-project:latest
