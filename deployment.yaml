@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-project-deployment
+spec:
+  replicas: 1 # On veut 1 copie de l'application
+  selector:
+    matchLabels:
+      app: devops-project
+  template:
+    metadata:
+      labels:
+        app: devops-project
+    spec:
+      containers:
+      - name: devops-project
+        image: samiaath/devops-mini-project:latest # Ton image Docker
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always # Force le téléchargement de la dernière version

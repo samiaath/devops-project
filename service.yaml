@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-project-service
+spec:
+  type: NodePort # Ouvre un port externe
+  selector:
+    app: devops-project
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 30001 # On force ce port pour accéder facilement (http://IP:30001)
