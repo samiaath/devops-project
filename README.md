@@ -1,4 +1,4 @@
-DevOps Project: Node.js Observability Demo
+DevOps Project: Node.js Observability Demo   + modification README
 =========================================
 
 Petite API Express instrumentée (métriques Prometheus, logs structurés, traçage par UUID) et prête pour Docker, Docker Compose et Kubernetes.
