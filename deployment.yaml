@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: devops-project
-        image: samiaath/devops-mini-project:latest # Ton image Docker
+        image: samiaath/devops-mini-project:latest #  image Docker
         ports:
         - containerPort: 3000
         imagePullPolicy: Always # Force le téléchargement de la dernière version
